@@ -1,6 +1,4 @@
 use wasm_bindgen::prelude::*;
-use web_sys::console;
-use js_sys::Math;
 use lerp::Lerp;
 
 #[wasm_bindgen]
@@ -87,9 +85,9 @@ impl Particles {
     for i in 0..(self.count as usize) {
       self.check_collisions(self.points[i]);
 
-      let mut new_x = self.points[i].x + self.points[i].dx * self.points[i].speed;
-      let mut new_y = self.points[i].y + self.points[i].dy * self.points[i].speed;
-      let mut new_z = self.points[i].z + self.points[i].dz * self.points[i].speed;
+      let new_x = self.points[i].x + self.points[i].dx * self.points[i].speed;
+      let new_y = self.points[i].y + self.points[i].dy * self.points[i].speed;
+      let new_z = self.points[i].z + self.points[i].dz * self.points[i].speed;
 
       if new_x < 0.0 + self.radius / 2. || new_x > self.width - self.radius / 2. {
         self.points[i].dx *= -1.;
@@ -131,7 +129,7 @@ impl Particles {
         target.speed = 0.05;
         self.points[i].speed = 0.05;
 
-        // test(self.points[i].index as i32);
+        test(self.points[i].index as i32);
       }
     }
   }

@@ -1,5 +1,21 @@
-// import Tone from 'tone';
+import Tone from 'tone';
 import Scene from './scene';
+import * as dat from 'dat.gui';
+
+const gui = new dat.GUI();
+
+const guiOpts = {
+  boxVisible: true,
+  cameraControlsEnabled: true
+};
+
+gui.add(guiOpts, 'boxVisible').onChange(() => {
+  scene.box.visible = guiOpts.boxVisible;
+});
+
+gui.add(guiOpts, 'cameraControlsEnabled').onChange(() => {
+  scene.controls.enabled = guiOpts.cameraControlsEnabled;
+});
 
 let _particles;
 let particleArray;
@@ -7,9 +23,9 @@ let scene;
 let memory;
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('webgl');
-const radius = 20;
-const particleCount = 250;
-// var synth = new Tone.Synth().toMaster()
+const radius = 10;
+const particleCount = 150;
+var synth = new Tone.Synth().toMaster()
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -29,13 +45,13 @@ const startAudio = () => { canPlayAudio = true; }
 document.body.addEventListener('click', startAudio.bind(this));
 document.body.addEventListener('touchstart', startAudio.bind(this));
 
-// window.test = (index) => {
-//   const note = index % notes.length;
+window.test = (index) => {
+  const note = index % notes.length;
 
-//   if (canPlayAudio) {
-//     synth.triggerAttackRelease(notes[note], '8n')
-//   }
-// }
+  if (canPlayAudio) {
+    synth.triggerAttackRelease(notes[note], '8n')
+  }
+}
 
 import("./wasm_loader.js").then(_ => {
   memory =  _.get_memory();

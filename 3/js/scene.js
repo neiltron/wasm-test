@@ -1,6 +1,7 @@
-import * as THREE from 'three';
+global.THREE = require('three');
 
-require( 'three-instanced-mesh' )(THREE);
+
+require('three/examples/js/controls/OrbitControls');
 
 import CustomPhongMaterial from  './CustomPhong';
 
@@ -15,10 +16,12 @@ export default class WebglRenderer {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera( 90, this.width / this.height, 0.1, 5000 );
     // this.camera = new THREE.OrthographicCamera(0, this.width, 0, this.height, 0, 1000);
-    this.camera.position.x += this.width / 4;
-    this.camera.position.y += this.height / 4;
+    // this.camera.position.x += this.width / 4;
+    // this.camera.position.y += this.height / 4;
     this.camera.position.z += this.width / 2;
     this.scene.add(this.camera);
+
+    this.controls = new THREE.OrbitControls(this.camera);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: opts.canvas
@@ -42,6 +45,23 @@ export default class WebglRenderer {
     pointLight2.position.z = 200;
 
 
+    this.box = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(this.width / 2 + this.itemRadius, this.height / 2 + this.itemRadius, this.height / 2),
+      new THREE.MeshBasicMaterial({ color: '#ff0', wireframe: true })
+    );
+
+    this.sceneObject = new THREE.Object3D();
+    this.scene.add(this.sceneObject);
+
+    this.box.position.x += this.width / 4;
+    this.box.position.y += this.height / 4;
+    this.box.position.z += this.height / 4;
+
+    this.sceneObject.add(this.box);
+
+    this.sceneObject.position.x -= this.width / 4;
+    this.sceneObject.position.y -= this.width / 5;
+    this.sceneObject.position.z -= this.width / 4;
 
     this.resize();
     this.createBuffer();
@@ -54,6 +74,7 @@ export default class WebglRenderer {
   }
 
   draw() {
+    this.controls.update();
     this.instanceMesh.geometry.attributes.instancePosition.needsUpdate = true;
     this.renderer.render(this.scene, this.camera);
   }
@@ -73,6 +94,6 @@ export default class WebglRenderer {
     this.instanceMesh.matrixAutoUpdate = false;
     this.instanceMesh.frustumCulled = false;
 
-    this.scene.add(this.instanceMesh);
+    this.sceneObject.add(this.instanceMesh);
   }
 }
