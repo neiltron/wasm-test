@@ -79,24 +79,64 @@ impl Particles {
     Particles { points, vertices, count: particle_count, width, height, depth, radius }
   }
 
-  pub fn update(&mut self) {
+  pub fn update(&mut self, time: f32) {
     for i in 0..(self.count as usize) {
       self.check_collisions(self.points[i]);
 
-      let new_x = self.points[i].x + self.points[i].dx * self.points[i].speed;
-      let new_y = self.points[i].y + self.points[i].dy * self.points[i].speed;
-      let new_z = self.points[i].z + self.points[i].dz * self.points[i].speed;
+      let mut step: f32 = (time / 3.).sin();
+
+      if step > 0.0 {
+        step = 1.0;
+      } else {
+        step = -1.0;
+      }
+
+      if step < 0.0 {
+        if self.points[i].x > self.width / 2. + (self.points[i].index as f32)  { self.points[i].dx = self.points[i].dx.lerp(-1., 0.8); }
+        if self.points[i].y > self.height / 2. + (self.points[i].index as f32 / 10.)  { self.points[i].dy = self.points[i].dy.lerp(-1., 0.8); }
+        if self.points[i].x > self.depth / 2. + (self.points[i].index as f32)  { self.points[i].dz = self.points[i].dz.lerp(-1., 0.8); }
+
+        if self.points[i].x < self.width / 2. + (self.points[i].index as f32)  { self.points[i].dx = self.points[i].dx.lerp(1., 0.8); }
+        if self.points[i].y < self.height / 2. + (self.points[i].index as f32 / 10.)  { self.points[i].dy = self.points[i].dy.lerp(1., 0.8); }
+        if self.points[i].x < self.depth / 2. + (self.points[i].index as f32)  { self.points[i].dz = self.points[i].dz.lerp(1., 0.8); }
+      }
+
+      // if step < 0.0 {
+      //   self.points[i].dy = self.points[i].dy.lerp(100. * step, 0.5);
+      // }
+
+      let mut new_x = self.points[i].x + self.points[i].dx * self.points[i].speed;
+      let mut new_y = self.points[i].y + self.points[i].dy * self.points[i].speed;
+      let mut new_z = self.points[i].z + self.points[i].dz * self.points[i].speed;
 
       if new_x < 0.0 + self.radius / 2. || new_x > self.width - self.radius / 2. {
         self.points[i].dx *= -1.;
+      }
+
+      if new_x > self.width - self.radius / 2. {
+        new_x = self.width - self.radius / 2.;
+      } else if new_x < 0.0 + self.radius / 2. {
+        new_x = 0.0 + self.radius / 2.;
       }
 
       if new_y < 0.0 + self.radius / 2. || new_y > self.height - self.radius / 2. {
         self.points[i].dy *= -1.;
       }
 
+      if new_y > self.height - self.radius / 2. {
+        new_y = self.height - self.radius / 2.;
+      } else if new_y < 0.0 + self.radius / 2. {
+        new_y = 0.0 + self.radius / 2.;
+      }
+
       if new_z < 0.0 + self.radius / 2. || new_z > self.depth - self.radius / 2. {
         self.points[i].dz *= -1.;
+      }
+
+      if new_z < 0.0 + self.radius / 2. {
+        new_z = 0.0 + self.radius / 2.;
+      } else if new_z > self.depth - self.radius / 2. {
+        new_z = self.depth - self.radius / 2.;
       }
 
       self.points[i].x = new_x;
@@ -107,7 +147,7 @@ impl Particles {
       self.vertices[i * 3 + 1] = self.points[i].y;
       self.vertices[i * 3 + 2] = self.points[i].z;
 
-      self.points[i].speed = self.points[i].speed.lerp(0.01, 0.05);
+      self.points[i].speed = self.points[i].speed.lerp(0.1, 0.05);
     }
   }
 
@@ -120,14 +160,14 @@ impl Particles {
         target.dy = target.y - self.points[i].y;
         target.dz = target.z - self.points[i].z;
 
-        self.points[i].dx = self.points[i].x - target.x;
-        self.points[i].dy = self.points[i].y - target.y;
-        self.points[i].dz = self.points[i].z - target.z;
+        self.points[i].dx = (self.points[i].x - target.x) * 1.5;
+        self.points[i].dy = (self.points[i].y - target.y) * 1.5;
+        self.points[i].dz = (self.points[i].z - target.z) * 1.5;
 
         target.speed = 0.05;
         self.points[i].speed = 0.05;
 
-        test(self.points[i].index as i32);
+        // test(self.points[i].index as i32);
       }
     }
   }

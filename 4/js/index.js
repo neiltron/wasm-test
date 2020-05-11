@@ -1,0 +1,96 @@
+import Tone from 'tone';
+import Scene from './scene';
+import * as dat from 'dat.gui';
+
+const gui = new dat.GUI();
+
+const guiOpts = {
+  boxVisible: true,
+  cameraControlsEnabled: true
+};
+
+gui.add(guiOpts, 'boxVisible').onChange(() => {
+  scene.box.visible = guiOpts.boxVisible;
+});
+
+gui.add(guiOpts, 'cameraControlsEnabled').onChange(() => {
+  scene.controls.enabled = guiOpts.cameraControlsEnabled;
+});
+
+let _particles;
+let particleArray;
+let scene;
+let memory;
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('webgl');
+const radius = 20;
+const particleCount = 7225;
+var synth = new Tone.Synth().toMaster()
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+canvas.style.width = window.innerWidth;
+canvas.style.height = window.innerHeight;
+document.body.appendChild(canvas);
+document.body.style.margin = 0;
+
+const notes = [
+  'C3',
+  'E4',
+  'D4',
+]
+
+let canPlayAudio = false;
+const startAudio = () => { canPlayAudio = true; }
+document.body.addEventListener('click', startAudio.bind(this));
+document.body.addEventListener('touchstart', startAudio.bind(this));
+
+window.test = (index) => {
+  const note = index % notes.length;
+
+  if (canPlayAudio) {
+    synth.triggerAttackRelease(notes[note], '8n')
+  }
+}
+
+import("./wasm_loader.js").then(_ => {
+  memory =  _.get_memory();
+
+  if (_particles) {
+    setupParticleArray();
+
+    requestAnimationFrame(update);
+  }
+});
+
+import("../pkg/index.js").then(_ => {
+  _particles = new _.Particles(particleCount, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / 2, radius);
+
+  if (particleArray) {
+    setupParticleArray();
+
+    requestAnimationFrame(update);
+  }
+}).catch(console.error);
+
+const setupParticleArray = () => {
+  particleArray = new Float32Array(memory.buffer, _particles.items(), particleCount * 3);
+
+  scene = new Scene({
+    buffer: particleArray,
+    itemRadius: radius,
+    canvas
+  });
+}
+
+function update () {
+  const time = performance.now();
+
+  if (time > 3000) {
+    _particles.update(time / 500);
+  }
+
+  scene.draw();
+
+  requestAnimationFrame(update);
+}
