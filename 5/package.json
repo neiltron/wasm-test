@@ -14,7 +14,7 @@
     "rimraf": "^2.6.3",
     "three-instanced-mesh": "^0.96.2",
     "webpack": "^4.33.0",
-    "webpack-cli": "^3.3.3",
+    "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.7.1"
   },
   "dependencies": {
