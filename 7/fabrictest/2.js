@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[2],{7:function(n,r,o){"use strict";o.r(r),o.d(r,"get_memory",function(){return c});var t=o(6);function c(){try{return t.i}catch(n){logError(n)}}}}]);
